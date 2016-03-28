@@ -1,0 +1,107 @@
+# re-analysis of Gabbiadini et al. 2016
+library(psych)
+library(dplyr)
+library(ggplot2)
+
+dat = read.csv("data_set_PLOS.csv")
+table(dat$played_game, dat$condition)
+
+# Experimental assignment
+dat %>% 
+  select(played_game:cond) %>% 
+  distinct
+
+# Avatar identification
+dat %>% 
+  select(avatar_id_embodied_presence1:avatar_id_char_empathy4) %>% 
+  glimpse
+
+# Masculine beliefs
+dat %>% 
+  select(MRNI1_aggr:MRNI15_restremotionality) %>% 
+  glimpse
+
+# Do these really belong together -- "demonstrate physical prowess" v 
+# "use any means to 'convince' a girl to have sex"
+dat %>% 
+  select(MRNI1_aggr:MRNI15_restremotionality) %>% 
+  psych::alpha()
+# I guess so.  
+
+# Empathy for victim?
+dat %>% 
+  select(Empathy_comprensione:Empathy_disinteresseR) %>% 
+  glimpse
+
+# Game rating. Was there a Game_rating_involvement1?
+dat %>% 
+  select(game_rating_involvement2_eccitante:game_rating_involvement3_coinvolgente) %>% 
+  glimpse
+
+
+# Analysis ---
+# Effects of game on empathy towards women -- zilch ----
+# I'm guessing "emp_scal" is their outcome -- empathy towards female violence victim
+dat %>% 
+  select(Empathy_comprensione:Empathy_disinteresse) %>% 
+  psych::alpha(check.keys = T)
+
+dat %>% 
+  select(Empathy_comprensione:Empathy_disinteresse, emp_scal) %>% 
+  cor(use = "pairwise") %>% 
+  round(3)
+
+m1 = aov(emp_scal ~ as.factor(cond), data = dat)
+summary(m1)
+TukeyHSD(m1)
+
+m1.1 = lm(emp_scal ~ cond, data = dat)
+summary(m1.1)
+
+tapply(dat$emp_scal, dat$cond, mean, na.rm = T)
+
+
+# Effects of game on masculine beliefs ----
+m2 = aov(mas_beli ~ as.factor(cond), data = dat)
+summary(m2)
+TukeyHSD(m2) # GTA differs from nonviolent, p = .03
+
+m2.1 = lm(mas_beli ~ cond, data = dat)
+summary(m2.1)
+
+ggplot(dat, aes(x = as.factor(cond), y = mas_beli, 
+                col = as.factor(cond), shape = played_game)) +
+  #geom_boxplot(width = .3, notch = T)
+  geom_point(position = position_jitter(width = .5))
+
+# Identification with game character ----
+# Greatest identification in half-life
+m3 = aov(avatarID ~ as.factor(cond), data = dat)
+summary(m3)
+TukeyHSD(m3)
+
+# Our predicted 3-way interaction between game, gender, and identification ---
+m4 = lm(mas_beli ~ as.factor(cond)*as.factor(gender)*avatarID, data = dat)
+summary(m4)
+hist(m4$residuals)
+
+ggplot(dat, aes(x = avatarID, y = mas_beli, col = as.factor(cond), 
+                lty = as.factor(gender), shape = as.factor(gender))) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = F)
+
+# Does that 3-way interaction generalize to the primary outcome? ---
+m5 = lm(emp_scal ~ as.factor(cond)*as.factor(gender)*avatarID, data = dat)
+summary(m5)
+hist(m5$residuals)
+
+ggplot(dat, aes(x = avatarID, y = emp_scal, col = as.factor(cond), 
+                lty = as.factor(gender), shape = as.factor(gender))) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = F)
+
+# Kinda? But not really.
+
+ggplot(dat, aes(x = mas_beli, y = emp_scal, col = as.factor(gender))) +
+  geom_point() +
+  geom_smooth(method = "lm")
