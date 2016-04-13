@@ -2,9 +2,12 @@
 library(psych)
 library(dplyr)
 library(ggplot2)
+library(lavaan)
+library(car)
 
 dat = read.csv("data_set_PLOS.csv")
-table(dat$played_game, dat$condition)
+table(dat$played_game, dat$condition, useNA = 'always')
+table(dat$played_game, dat$cond, useNA = 'always')
 
 # Experimental assignment
 dat %>% 
@@ -51,37 +54,47 @@ dat %>%
   cor(use = "pairwise") %>% 
   round(3)
 
-m1 = aov(emp_scal ~ as.factor(cond), data = dat)
+m1 = aov(emp_scal ~ as.factor(condition), data = dat)
 summary(m1)
-TukeyHSD(m1)
+TukeyHSD(m1) 
 
 m1.1 = lm(emp_scal ~ cond, data = dat)
 summary(m1.1)
 
 tapply(dat$emp_scal, dat$cond, mean, na.rm = T)
 
+# Moderated by gender?
+m1.2 = lm(emp_scal ~ condition * as.factor(gender), data = dat)
+summary(m1.2)
+Anova(m1.2, type = 3) # No
+
 
 # Effects of game on masculine beliefs ----
-m2 = aov(mas_beli ~ as.factor(cond), data = dat)
+# ANOVA
+m2 = aov(mas_beli ~ condition, data = dat)
 summary(m2)
 TukeyHSD(m2) # GTA differs from nonviolent, p = .03
 
+# Linear contrast
 m2.1 = lm(mas_beli ~ cond, data = dat)
 summary(m2.1)
 
 ggplot(dat, aes(x = as.factor(cond), y = mas_beli, 
                 col = as.factor(cond), shape = played_game)) +
-  #geom_boxplot(width = .3, notch = T)
+  geom_boxplot(width = .3, notch = T)
+
+ggplot(dat, aes(x = as.factor(cond), y = mas_beli, 
+                col = as.factor(cond), shape = played_game)) +
   geom_point(position = position_jitter(width = .5))
 
 # Identification with game character ----
 # Greatest identification in half-life
-m3 = aov(avatarID ~ as.factor(cond), data = dat)
+m3 = aov(avatarID ~ condition, data = dat)
 summary(m3)
-TukeyHSD(m3)
+TukeyHSD(m3) # HL is greater than GTA, greater than Qube/pinball
 
 # Our predicted 3-way interaction between game, gender, and identification ---
-m4 = lm(mas_beli ~ as.factor(cond)*as.factor(gender)*avatarID, data = dat)
+m4 = lm(mas_beli ~ condition*as.factor(gender)*avatarID, data = dat)
 summary(m4)
 hist(m4$residuals)
 
@@ -92,16 +105,45 @@ ggplot(dat, aes(x = avatarID, y = mas_beli, col = as.factor(cond),
 
 # Does that 3-way interaction generalize to the primary outcome? ---
 m5 = lm(emp_scal ~ as.factor(cond)*as.factor(gender)*avatarID, data = dat)
-summary(m5)
+summary(m5) # No it does not
 hist(m5$residuals)
+Anova(m5, type = 3)
 
 ggplot(dat, aes(x = avatarID, y = emp_scal, col = as.factor(cond), 
                 lty = as.factor(gender), shape = as.factor(gender))) +
   geom_point() + 
-  geom_smooth(method = "lm", se = F)
+  geom_smooth(method = 'lm', se = F)
 
 # Kinda? But not really.
 
 ggplot(dat, aes(x = mas_beli, y = emp_scal, col = as.factor(gender))) +
   geom_point() +
   geom_smooth(method = "lm")
+
+# Were these two factors correlated in the control group? Yeah
+dat %>% 
+  filter(cond == 1) %>% 
+  select(gender, mas_beli, emp_scal) %>% 
+  cor(use = 'pairwise') %>% 
+  round(3)
+
+dat %>% 
+  filter(cond == 1) %>% 
+  ggplot(aes(x = mas_beli, y = emp_scal, col = as.factor(gender))) +
+  geom_point() + 
+  geom_smooth(method = "lm")
+
+# Not sure if I'm contrast-coding this correctly
+model.check = lm(emp_scal ~ mas_beli * C(as.factor(gender), "contr.treatment"), data = dat, subset = cond == 1)
+summary(model.check)
+
+# SEM ----
+modelSEM = {
+  "emp_scal ~ mas_beli
+  mas_beli ~ cond101 + gend_con + avatad_IDcent +
+              gender_codxcond101 + avatad_IDcentxgendercod + avatad_IDcentxcond101 +
+              avatad_IDcentxgendercodxcond101"
+}
+
+model.sem = sem(modelSEM, data = dat)
+summary(model.sem)
