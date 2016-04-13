@@ -116,6 +116,11 @@ ggplot(dat, aes(x = avatarID, y = emp_scal, col = as.factor(cond),
 
 # Kinda? But not really.
 
+# So just how many highly-identified violent male gamers are there?
+hist(dat$avatarID[dat$cond == 3 & dat$gender == 1], breaks = 7)
+sum(dat$avatarID[dat$cond == 3 & dat$gender == 1] > 4) # about 17
+length(dat$avatarID[dat$cond == 3 & dat$gender == 1]) # out of 22
+
 ggplot(dat, aes(x = mas_beli, y = emp_scal, col = as.factor(gender))) +
   geom_point() +
   geom_smooth(method = "lm")
