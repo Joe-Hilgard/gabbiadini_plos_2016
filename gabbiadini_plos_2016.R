@@ -68,6 +68,10 @@ m1.2 = lm(emp_scal ~ condition * as.factor(gender), data = dat)
 summary(m1.2)
 Anova(m1.2, type = 3) # No
 
+# Get means by gender
+tapply(dat$emp_scal, INDEX = list(dat$condition, dat$gender), FUN = mean, na.rm = T)
+aov(emp_scal ~ condition, data = dat[dat$gender == 1,]) %>% TukeyHSD()
+# No differences even among men
 
 # Effects of game on masculine beliefs ----
 # ANOVA
@@ -109,12 +113,18 @@ summary(m5) # No it does not
 hist(m5$residuals)
 Anova(m5, type = 3)
 
+# Ordinal code?
+m5.1 = lm(emp_scal ~ cond*as.factor(gender)*avatarID, data = dat)
+summary(m5.1) # Still the answer is no
+hist(m5.1$residuals)
+Anova(m5.1, type = 3)
+
 ggplot(dat, aes(x = avatarID, y = emp_scal, col = as.factor(cond), 
                 lty = as.factor(gender), shape = as.factor(gender))) +
   geom_point() + 
   geom_smooth(method = 'lm', se = F)
 
-# Kinda? But not really.
+# Kinda? But not significantly so.
 
 # So just how many highly-identified violent male gamers are there?
 hist(dat$avatarID[dat$cond == 3 & dat$gender == 1], breaks = 7)
