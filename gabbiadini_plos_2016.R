@@ -1,6 +1,7 @@
 # re-analysis of Gabbiadini et al. 2016
 library(psych)
 library(dplyr)
+library(magrittr)
 library(ggplot2)
 library(lavaan)
 library(car)
@@ -166,14 +167,45 @@ summary(model.sem)
 # How many have avatar_id > 4.29?
 dat %>% 
   filter(condition == "GTA", gender == 1) %>% 
-  select(avatar_id)
+  select(avatarID)
 
 dat %>% 
   filter(condition == "GTA", gender == 1) %>% 
-  with(., hist(avatar_id, breaks = c(1, 1.5, 2, 2.5, 3, 3.5, 4, 4.2583, 4.5, 5, 5.5, 6), freq = T))
+  with(., hist(avatarID))
+
+dat %>% 
+  filter(condition == "GTA", gender == 1) %>% 
+  with(., hist(avatarID, breaks = c(2, 3, 4, 4.2583, 5, 6, 7), freq = T))
 abline(v = 4.2583, col = "red", lwd = 2)
 
 dat %>% 
   filter(condition == "GTA", gender == 1) %>% 
-  with(., table(avatar_id > 4.2583))
+  with(., table(avatarID > 4.2583))
   
+# Why are avatar_id and avatarID different?
+with(dat, plot(avatarID, avatar_id))
+
+# avatarID seems to be the one used in the process model
+with(dat, plot(avatarID, avatad_IDcent))
+
+# Why do avatarID and avatar_id differ?
+# AvatarID is just the "embodied presence" subscale of the identification measure
+dat %>% 
+  select(avatar_id_embodied_presence1:avatar_id_embodied_presence6) %>% 
+  apply(1, FUN = mean) %T>% 
+  plot(x = ., y = dat$avatarID, 
+       main = "avatarID is embodied presence subscale",
+       xlab = "subscale mean") %>%
+  plot(x = ., y = dat$avatar_id,
+       main = "avatar_id is not embodied presence subscale",
+       xlab = "subscale mean") 
+
+dat %>% 
+  select(avatar_id_embodied_presence1:avatar_id_char_empathy4) %>% 
+  apply(1, FUN = mean) %T>% 
+  plot(x = ., y = dat$avatarID, 
+       main = "avatarID is not total measure mean",
+       xlab = "Total measure mean") %>% 
+  plot(x = ., y = dat$avatar_id, 
+       main = "avatar_id is the total measure mean",
+       xlab = "Total measure mean")  
