@@ -98,6 +98,11 @@ m3 = aov(avatarID ~ condition, data = dat)
 summary(m3)
 TukeyHSD(m3) # HL is greater than GTA, greater than Qube/pinball
 
+# compare to total scale
+m3.1 = aov(avatar_id ~ condition, data = dat)
+summary(m3.1)
+TukeyHSD(m3.1) # HL is greater than GTA, greater than Qube/pinball
+
 # Our predicted 3-way interaction between game, gender, and identification ---
 m4 = lm(mas_beli ~ condition*as.factor(gender)*avatarID, data = dat)
 summary(m4)
@@ -164,6 +169,8 @@ modelSEM = {
 model.sem = sem(modelSEM, data = dat)
 summary(model.sem)
 
+
+
 # How many have avatar_id > 4.29?
 dat %>% 
   filter(condition == "GTA", gender == 1) %>% 
@@ -190,6 +197,7 @@ with(dat, plot(avatarID, avatad_IDcent))
 
 # Why do avatarID and avatar_id differ?
 # AvatarID is just the "embodied presence" subscale of the identification measure
+# Embodied presence subscale:
 dat %>% 
   select(avatar_id_embodied_presence1:avatar_id_embodied_presence6) %>% 
   apply(1, FUN = mean) %T>% 
@@ -200,6 +208,7 @@ dat %>%
        main = "avatar_id is not embodied presence subscale",
        xlab = "subscale mean") 
 
+# Total measure mean:
 dat %>% 
   select(avatar_id_embodied_presence1:avatar_id_char_empathy4) %>% 
   apply(1, FUN = mean) %T>% 
@@ -209,3 +218,13 @@ dat %>%
   plot(x = ., y = dat$avatar_id, 
        main = "avatar_id is the total measure mean",
        xlab = "Total measure mean")  
+
+# Are the means in table 2 avatarID or avatar_id?
+tapply(dat$avatarID, dat$condition, FUN = mean) # matches
+tapply(dat$avatar_id, dat$condition, FUN = mean) # does not match
+
+
+
+# How about in GLM?
+fit.x = lm(emp_scal ~ condition * as.factor(gend_con) * avatar_id, data = dat) 
+summary(fit.x)
