@@ -170,7 +170,12 @@ dat %>%
 
 dat %>% 
   filter(condition == "GTA", gender == 1) %>% 
-  with(., hist(mas_beli))
+  with(., hist(mas_beli, breaks = c(1, 1.5, 2, 2.5, 3, 3.5, 4, 4.29, 4.5, 5, 5.5, 6), freq = T))
+abline(v = 4.29, col = "red", lwd = 2)
+
+dat %>% 
+  filter(condition == "GTA", gender == 1) %>% 
+  with(., hist(mas_beli), breaks = c(2, 3, 4.29, 6))
 
 dat %>% 
   filter(condition == "GTA", gender == 1) %>% 
