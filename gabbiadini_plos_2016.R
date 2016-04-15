@@ -163,21 +163,17 @@ modelSEM = {
 model.sem = sem(modelSEM, data = dat)
 summary(model.sem)
 
-# How many have mas_beli > 4.29?
+# How many have avatar_id > 4.29?
 dat %>% 
   filter(condition == "GTA", gender == 1) %>% 
-  select(mas_beli)
+  select(avatar_id)
 
 dat %>% 
   filter(condition == "GTA", gender == 1) %>% 
-  with(., hist(mas_beli, breaks = c(1, 1.5, 2, 2.5, 3, 3.5, 4, 4.29, 4.5, 5, 5.5, 6), freq = T))
-abline(v = 4.29, col = "red", lwd = 2)
+  with(., hist(avatar_id, breaks = c(1, 1.5, 2, 2.5, 3, 3.5, 4, 4.2583, 4.5, 5, 5.5, 6), freq = T))
+abline(v = 4.2583, col = "red", lwd = 2)
 
 dat %>% 
   filter(condition == "GTA", gender == 1) %>% 
-  with(., hist(mas_beli), breaks = c(2, 3, 4.29, 6))
-
-dat %>% 
-  filter(condition == "GTA", gender == 1) %>% 
-  with(., table(mas_beli > 4.29))
+  with(., table(avatar_id > 4.2583))
   
