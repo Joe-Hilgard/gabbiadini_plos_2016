@@ -162,3 +162,17 @@ modelSEM = {
 
 model.sem = sem(modelSEM, data = dat)
 summary(model.sem)
+
+# How many have mas_beli > 4.29?
+dat %>% 
+  filter(condition == "GTA", gender == 1) %>% 
+  select(mas_beli)
+
+dat %>% 
+  filter(condition == "GTA", gender == 1) %>% 
+  with(., hist(mas_beli))
+
+dat %>% 
+  filter(condition == "GTA", gender == 1) %>% 
+  with(., table(mas_beli > 4.29))
+  
