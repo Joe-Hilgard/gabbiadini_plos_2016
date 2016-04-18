@@ -128,7 +128,8 @@ Anova(m5.1, type = 3)
 ggplot(dat, aes(x = avatarID, y = emp_scal, col = as.factor(cond), 
                 lty = as.factor(gender), shape = as.factor(gender))) +
   geom_point() + 
-  geom_smooth(method = 'lm', se = F)
+  geom_smooth(method = 'lm', se = F) +
+  ggtitle("Gender × Identification × Game (-1, 0, 1)")
 
 # Kinda? But not significantly so.
 
@@ -281,3 +282,14 @@ dat %>%
              alpha = .15) +
   ggtitle("Regression within only highly-identified males")
 
+dat = dat %>% 
+  mutate(crit_code = ifelse(dat$gend_con == 1 & dat$avatarID > 4.2583 & dat$condition == "GTA", "Yes", "No"))
+
+ggplot(dat, aes(x = avatarID, y = emp_scal, col = crit_code)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  ggtitle("Empathy as function of critical combo")
+
+ggplot(dat, aes(x = crit_code, y = emp_scal, col = crit_code)) +
+  geom_violin() +
+  geom_boxplot(width = .25, notch = T)
