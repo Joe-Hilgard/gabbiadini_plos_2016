@@ -228,3 +228,56 @@ tapply(dat$avatar_id, dat$condition, FUN = mean) # does not match
 # How about in GLM?
 fit.x = lm(emp_scal ~ condition * as.factor(gend_con) * avatar_id, data = dat) 
 summary(fit.x)
+
+# Looking at models & plots within critical subset -----
+# The critical region? Males w/ ID > 4.258
+dat.crit = dat %>% 
+  filter(avatarID > 4.2583, gend_con == 1) 
+
+# Null results in total-sample GLM
+m = lm(emp_scal ~ cond101*as.factor(gend_con)*avatarID, data = dat)
+summary(m); Anova(m, type = 3)
+# Null main effect in critical subsample GLM
+m.crit = lm(emp_scal ~ cond101, data = dat.crit)
+summary(m.crit); hist(m.crit$residuals)
+# Significant interaction in critical subsample GLM
+m.crit2 = lm(emp_scal ~ cond101*avatarID, data = dat.crit)
+summary(m.crit2); hist(m.crit2$residuals)
+
+# All subjects
+ggplot(dat, aes(x = condition, y = emp_scal)) +
+  geom_violin() +
+  geom_boxplot(width = .2, notch = T) +
+  ggtitle("All subjects")
+
+# All males
+dat %>% 
+  filter(gend_con == 1) %>% 
+  ggplot(aes(x = condition, y = emp_scal)) +
+  geom_violin() +
+  geom_boxplot(width = .2, notch = T) +
+  ggtitle("All males")
+
+# Critical region
+ggplot(dat.crit, aes(x = condition, y = emp_scal)) +
+  geom_violin() +
+  geom_boxplot(width = .2, notch = T) +
+  #geom_point(alpha = .25) +
+  ggtitle("Only the Highly-Identified Males")
+
+# Regression lines
+ggplot(dat, aes(x = avatarID, y = emp_scal, col = condition, lty = as.factor(gend_con))) +
+  geom_point() +
+  geom_smooth(method = 'lm', se = F) +
+  ggtitle("3-Way interaction among all subjects")
+
+dat %>% 
+  filter(gend_con == 1, avatarID > 4.25) %>% 
+  ggplot(aes(x = avatarID, y = emp_scal, col = condition)) +
+  geom_point() +
+  geom_smooth(method = 'lm') +
+  geom_point(data = dat, 
+             aes(x = avatarID, y = emp_scal, col = condition), 
+             alpha = .15) +
+  ggtitle("Regression within only highly-identified males")
+
