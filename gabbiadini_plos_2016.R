@@ -294,6 +294,4 @@ ggplot(dat, aes(x = crit_code, y = emp_scal, col = crit_code)) +
   geom_violin() +
   geom_boxplot(width = .25, notch = T)
 
-# Potential confound or non-random assignment of age ----
-aov(age ~ condition, data = dat) %>% TukeyHSD
-ggplot(dat, aes(x = age, fill = condition)) + geom_bar(stat = "count")
+
