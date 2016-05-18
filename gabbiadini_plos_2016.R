@@ -104,6 +104,13 @@ summary(m3.1)
 TukeyHSD(m3.1) # HL is greater than GTA, greater than Qube/pinball
 
 # Our predicted 3-way interaction between game, gender, and identification ---
+dat  %>%
+  filter(!is.na(gender))  %>%
+  ggplot(aes(x = avatad_IDcentxgendercodxcond101)) +
+  geom_histogram() +
+  facet_grid(gender ~ condition)
+
+
 m4 = lm(mas_beli ~ condition*as.factor(gender)*avatarID, data = dat)
 summary(m4)
 hist(m4$residuals)
@@ -124,6 +131,12 @@ m5.1 = lm(emp_scal ~ cond*as.factor(gender)*avatarID, data = dat)
 summary(m5.1) # Still the answer is no
 hist(m5.1$residuals)
 Anova(m5.1, type = 3)
+
+mz = lm(emp_scal ~ cond101*gend_con*avatad_IDcent, data = dat )
+summary(mz)
+
+mz1 = lm(emp_scal ~ avatad_IDcentxgendercodxcond101, data = dat)
+summary(mz1)
 
 ggplot(dat, aes(x = avatarID, y = emp_scal, col = as.factor(cond), 
                 lty = as.factor(gender), shape = as.factor(gender))) +

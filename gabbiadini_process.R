@@ -163,3 +163,5 @@ modelSEM5 = {
 
 fit5 = sem(modelSEM5, data = dat, se = "boot")
 summary(fit5)
+
+# What if I add more direct paths? Will it match lm() results? ----
