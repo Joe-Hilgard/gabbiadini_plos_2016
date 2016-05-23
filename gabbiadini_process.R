@@ -28,11 +28,7 @@ dat = dat %>%
          IDcxcond101xGender = IDc * gend_con * cond101
   )
 
-<<<<<<< HEAD
 # Modeling indirect effect using column "avatarID" as they did, with covariates ----
-=======
-# Modeling indirect effect using column "avatarID" as they did ----
->>>>>>> 5e49a474b061c4737eeea3a493831ec5430e6910
 modelSEM1 = {
   "emp_scal ~ b*mas_beli +
               c*cond101 +
@@ -60,8 +56,10 @@ modelSEM1 = {
 
 fit1 = sem(modelSEM1, data = dat, se = "boot")
 summary(fit1)
+arrange(modindices(fit1), desc(abs(epc))) %>% 
+  select(-sepc.lv, -sepc.all, -sepc.nox)
+inspect(fit1, "fit")
 
-<<<<<<< HEAD
 # Full scales for MRNI, empathy, and avatar-id, with covariates ----
 modelSEM2 = {
   "emp_scal_full ~ b*full_MRNI +
@@ -83,7 +81,8 @@ modelSEM2 = {
   # Indirect and total effects for females (gend_cod == 0)
   indirectF := a*b + az*b # aw*b, wz*b, and awz*b are zero
   totalF := indirectF + c"
-=======
+}
+
 # Modeling indirect effect using full scale composite "avatar_id" ----
 # Make the model:
 modelSEM2 = {
@@ -102,13 +101,11 @@ modelSEM2 = {
   # Indirect and total effects for females (gend_cod == 0)
   indirectF := a*b + ax*b # aw*b and awx*b are zero
   totalF := indirectF + c + cx # cw and cwx are zero"
->>>>>>> 5e49a474b061c4737eeea3a493831ec5430e6910
 }
 
 fit2 = sem(modelSEM2, data = dat, se = "boot")
 summary(fit2)
 
-<<<<<<< HEAD
 # Modeling using their variables, no covariates ----
 modelSEM3 = {
   "emp_scal ~ b*mas_beli +
@@ -132,7 +129,7 @@ modelSEM3 = {
 # Is it possible to retrieve unconditional indirect and total effects?
 #ab := a*b + aw*b + ax*b + awx*b # WIP: I don't know what I'm doing
 #total := ab + c + cw + cx + cwx # WIP: I don't know what I'm doing
-=======
+
 # Modeling using full MRNI and full empathy scales ----
 modelSEM3 = {
   "emp_scal_full ~ b*full_MRNI +
@@ -153,39 +150,25 @@ modelSEM3 = {
   indirectF := a*b + ax*b # aw*b and awx*b are zero
   totalF := indirectF + c + cx # cw and cwx are zero"
 }
->>>>>>> 5e49a474b061c4737eeea3a493831ec5430e6910
 
 fit3 = sem(modelSEM3, data = dat, se = "boot")
 summary(fit3)
 
-<<<<<<< HEAD
-# Modeling using full scales, no covariates ----
-modelSEM4 = {
-  "emp_scal_full ~ b*full_MRNI +
-  c*cond101 
-  
-=======
-# Full scales for MRNI, empathy, and avatar-id
+# Modeling using full scales, with covariates ----
 modelSEM4 = {
   "emp_scal_full ~ b*full_MRNI +
   c*cond101 +
   d1*violent +
   d2*age
 
->>>>>>> 5e49a474b061c4737eeea3a493831ec5430e6910
   full_MRNI ~ a*cond101 + 
   aw*gender_codxcond101 + 
   az*IDcxcond101 +
   wz*IDcxGender +
-<<<<<<< HEAD
-  awz*IDcxcond101xGender 
-  
-=======
   awz*IDcxcond101xGender +
   e1*violent +
   e2*age
 
->>>>>>> 5e49a474b061c4737eeea3a493831ec5430e6910
   # Indirect and total effects for males (gend_cod == 1)
   indirectM := a*b + aw*b + az*b + wz*b + awz*b
   totalM := indirectM + c 
@@ -196,7 +179,6 @@ modelSEM4 = {
 
 fit4 = sem(modelSEM4, data = dat, se = "boot")
 summary(fit4)
-<<<<<<< HEAD
 
 # Coding 1, 0 for misogyny, adjusting for violence ----
 dat = dat %>% 
@@ -231,5 +213,3 @@ fit5 = sem(modelSEM5, data = dat, se = "boot")
 summary(fit5)
 
 # What if I add more direct paths? Will it match lm() results? ----
-=======
->>>>>>> 5e49a474b061c4737eeea3a493831ec5430e6910
